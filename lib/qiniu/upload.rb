@@ -49,13 +49,22 @@ module Qiniu
                               key = nil,
                               x_vars = nil,
                               opts = {})
+
+        file = File.new(local_file, 'rb')
+        return upload_with_token_2_file_stream(uptoken, file, key, x_vars, opts)
+      end # upload_with_token_2
+
+      def upload_with_token_2_file_stream(uptoken,
+                                          file,
+                                          key = nil,
+                                          x_vars = nil,
+                                          opts = {})
         ### 构造URL
         url = Config.settings[:up_host]
         url[/\/*$/] = ''
         url += '/'
 
         ### 构造HTTP Body
-        file = File.new(local_file, 'rb')
         if not opts[:content_type].nil?
           file.define_singleton_method("content_type") do
             opts[:content_type]
@@ -63,8 +72,8 @@ module Qiniu
         end
 
         post_data = {
-          :file      => file,
-          :multipart => true,
+            :file      => file,
+            :multipart => true,
         }
         if not uptoken.nil?
           post_data[:token] = uptoken
@@ -78,7 +87,7 @@ module Qiniu
 
         ### 发送请求
         HTTP.api_post(url, post_data)
-      end # upload_with_token_2
+      end
 
       ### 授权举例
       # put_policy.bucket | put_policy.key | key     | 语义 | 授权
